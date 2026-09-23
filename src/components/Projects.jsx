@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from '../store';
 import { impactReveal } from '../fx';
 import Lightbox from './Lightbox';
+import { registerAnchor } from '../anchors';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
 const PROJECTS = [
   {
     name: 'GalaxEye',
+    slug: 'galaxeye',
     role: 'Web Development Intern',
     video: '/assets/video1.mp4',
     poster: '/assets/C3.png',
@@ -28,6 +30,7 @@ const PROJECTS = [
   },
   {
     name: 'Tynor',
+    slug: 'tynor',
     role: 'Industrial Eng. Intern',
     video: '/assets/video2.mp4',
     poster: '/assets/C2.png',
@@ -39,6 +42,7 @@ const PROJECTS = [
   },
   {
     name: 'SolutionWise',
+    slug: 'solutionwise',
     role: 'Web Developer Intern',
     video: '/assets/video3.mp4',
     poster: '/assets/C1.png',
@@ -70,6 +74,7 @@ export default function Projects() {
       const leanTo = panels.map((c) =>
         gsap.quickTo(c, 'rotationY', { duration: 0.55, ease: 'power2.out' })
       );
+      let idle; // lean-reset timer, see onUpdate
       const setProgress = progress.current
         ? gsap.quickSetter(progress.current, 'scaleX')
         : () => {};
@@ -102,6 +107,13 @@ export default function Projects() {
             if (!reduced) {
               const lean = gsap.utils.clamp(-14, 14, self.getVelocity() / -240);
               leanTo.forEach((to) => to(lean));
+              // onUpdate stops firing the moment scrolling stops, so the
+              // last lean would sit there forever. Normal scrolling
+              // decelerates and lands near 0 anyway, but a deep-link jump
+              // arrives as one big velocity spike then silence — which
+              // parks the whole reel visibly tilted.
+              clearTimeout(idle);
+              idle = setTimeout(() => leanTo.forEach((to) => to(0)), 180);
             }
           },
           // never park a panel tilted when the pin releases
@@ -145,7 +157,34 @@ export default function Projects() {
         });
       }
 
-      return () => tween.kill();
+      /* Per-card deep links. The cards never move vertically, so an
+         anchor has to answer "what scrollY centres card i?" instead.
+         Screen x of a card = its layout offsetLeft plus the track's
+         translate, and the pin maps its whole vertical range linearly
+         onto that translate — so invert it. offsetLeft (not
+         getBoundingClientRect) because the cards carry reveal/lean
+         transforms that would poison a measured rect. */
+      const st = tween.scrollTrigger;
+      const stop = [];
+      panels.forEach((panel, i) => {
+        const slug = PROJECTS[i]?.slug;
+        if (!slug) return;
+        const resolve = () => {
+          const span = el.scrollWidth - window.innerWidth;
+          const top = root.current.getBoundingClientRect().top + window.scrollY;
+          if (!st || span <= 0) return top;
+          const centred = panel.offsetLeft - (window.innerWidth - panel.offsetWidth) / 2;
+          const p = gsap.utils.clamp(0, 1, centred / span);
+          return st.start + p * (st.end - st.start);
+        };
+        stop.push(registerAnchor(`project-${slug}`, resolve), registerAnchor(slug, resolve));
+      });
+
+      return () => {
+        clearTimeout(idle);
+        stop.forEach((fn) => fn());
+        tween.kill();
+      };
     }, root);
     return () => ctx.revert();
   }, []);
@@ -198,6 +237,7 @@ export default function Projects() {
           {PROJECTS.map((p, i) => (
             <article
               key={p.name}
+              id={`project-${p.slug}`}
               className="proj-panel holo w-[86vw] shrink-0 md:w-[62vw]"
               style={{ willChange: 'transform' }}
             >

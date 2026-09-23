@@ -1,7 +1,8 @@
 import { useRef, useEffect, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useStore, getLenis, prefersReducedMotion } from '../store';
+import { useStore, prefersReducedMotion } from '../store';
+import { scrollToAnchor } from '../anchors';
 import Magnetic from './Magnetic';
 import { I } from './icons';
 
@@ -35,13 +36,13 @@ const SOCIALS = [
   },
 ];
 
-/* Lenis owns the scroller — native anchor jumps would desync it */
+/* Lenis owns the scroller — native anchor jumps would desync it. Routed
+   through the shared resolver so a nav entry can point at a Projects card
+   (whose scroll position has to be computed, not measured) exactly the
+   way it points at a section. */
 function goTo(e, to) {
   e.preventDefault();
-  const lenis = getLenis();
-  if (lenis) lenis.scrollTo(to, { duration: 1.6 });
-  else if (to === 0) window.scrollTo({ top: 0, behavior: 'smooth' });
-  else document.querySelector(to)?.scrollIntoView({ behavior: 'smooth' });
+  scrollToAnchor(to === 0 ? 'top' : to);
 }
 
 export default function Hero() {

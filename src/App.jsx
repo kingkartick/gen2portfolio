@@ -3,6 +3,7 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useStore, scrollState, setLenis, prefersReducedMotion } from './store';
+import { resolveAnchor, scrollToAnchor } from './anchors';
 import Preloader from './components/Preloader';
 import Background from './components/Background';
 import Cursor from './components/Cursor';
@@ -68,6 +69,47 @@ export default function App() {
       return () => clearTimeout(t);
     }
   }, [loaded]);
+
+  /* Deep links (?#project-tynor, #Education, …).
+
+     Has to wait for the preloader to lift AND for ScrollTrigger to have
+     measured the pins: a Projects anchor is derived from the pinned
+     reel's scroll range, so resolving it against stale measurements
+     lands on the wrong card. The native browser jump that may already
+     have happened on load is simply overwritten here. */
+  useEffect(() => {
+    if (!loaded) return;
+    const hash = window.location.hash;
+    if (!hash || hash === '#') return;
+
+    let cancelled = false;
+    // just after the preloader's own 1100ms refresh
+    const t1 = setTimeout(() => {
+      if (!cancelled) scrollToAnchor(hash, { immediate: true });
+    }, 1200);
+    // second pass: late webfonts/images can still reflow the pin range,
+    // and only correct if it actually drifted, so there is no double jump
+    const t2 = setTimeout(() => {
+      if (cancelled) return;
+      const y = resolveAnchor(hash);
+      if (y !== null && Math.abs(window.scrollY - y) > 16) {
+        scrollToAnchor(hash, { immediate: true });
+      }
+    }, 2400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [loaded]);
+
+  // In-page hash changes (shared link pasted into the same tab, back/forward)
+  useEffect(() => {
+    const onHash = () => scrollToAnchor(window.location.hash);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   // Layout can still shift after that refresh (late webfont swap,
   // straggler assets on window load). Stale measurements are what make
