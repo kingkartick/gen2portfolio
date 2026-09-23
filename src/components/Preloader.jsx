@@ -101,6 +101,16 @@ export default function Preloader() {
       {/* greeting sits directly above its own progress track */}
       <div className="pre__mid">
         <div className="pre__greeting" aria-hidden="true" />
+        {/* zero-height, invisible — its widest line fixes the block width
+            so the bar is sized by the longest greeting once, instead of
+            resizing on every language swap. Mirror of @keyframes cycle. */}
+        <span className="pre__sizer" aria-hidden="true">
+          <i>• Hello</i>
+          <i>• नमस्ते</i>
+          <i>• Bonjour</i>
+          <i>• Guten Tag</i>
+          <i>• こんにちは</i>
+        </span>
         <div className="pre__bar">
           <div className="pre__fill" ref={fill} />
         </div>

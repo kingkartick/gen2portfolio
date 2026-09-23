@@ -230,7 +230,8 @@ body {
   width: fit-content;
   max-width: 100%;
 }
-.pre__greeting {
+.pre__greeting,
+.pre__sizer {
   font-family: var(--font-grotesk);
   /* min is sized so the widest greeting (こんにちは) still fits one
      nowrap line on a 320px screen; 14vw takes over from ~331px up */
@@ -238,11 +239,29 @@ body {
   font-weight: 500;
   letter-spacing: -0.015em;
   line-height: 1.15;
+  white-space: nowrap;
+}
+.pre__greeting {
   color: var(--color-bone);
-  white-space: nowrap; /* one line, so the bar can track its width */
   /* Devanagari/CJK run taller than Latin — reserve the line so the bar
      underneath does not hop as the language cycles */
   min-height: 1.3em;
+}
+
+/* Invisible stack of every greeting. It takes no vertical space but its
+   widest line sets .pre__mid's fit-content width, so the bar below is
+   sized once by the LONGEST greeting and then holds still while the
+   language cycles. Keep its list in sync with @keyframes cycle below. */
+.pre__sizer {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.pre__sizer i {
+  display: block;
+  font-style: normal;
 }
 .pre__greeting::before {
   content: '• Hello';
