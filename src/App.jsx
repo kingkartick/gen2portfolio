@@ -16,6 +16,15 @@ import Footer from './components/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* Mobile browsers resize the viewport every time the URL bar slides in or
+   out. Left alone, each of those fires a ScrollTrigger refresh that
+   re-measures the pinned sections mid-gesture — and since the bar
+   reappears exactly as you scroll back toward the top, the recalculated
+   pin spacing shoves the page down against the finger and the last
+   stretch to y=0 becomes unreachable. This ignores height-only mobile
+   resizes (a real orientation change still refreshes). */
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 export default function App() {
   const loaded = useStore((s) => s.loaded);
   const [showPreloader, setShowPreloader] = useState(true);
@@ -28,10 +37,11 @@ export default function App() {
     if (prefersReducedMotion()) return;
 
     const lenis = new Lenis({
-      lerp: 0.09,
+      lerp: 0.115, // catch-up rate — higher tracks the input more closely
       smoothWheel: true,
+      wheelMultiplier: 1.25,
       syncTouch: true,
-      touchMultiplier: 1.2,
+      touchMultiplier: 1.7, // a swipe should cover more ground per flick
     });
     setLenis(lenis);
 

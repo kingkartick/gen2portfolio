@@ -190,7 +190,12 @@ body {
   }
 }
 
-/* ---------- preloader ---------- */
+/* ---------- preloader ----------
+   Composition follows the reference Kartick picked: brand rule across the
+   top, a big LEFT-aligned greeting with the load bar tucked beneath it in
+   the upper third, and an oversized outlined percentage anchored to the
+   right below that. Deliberately not centred and not floor-anchored —
+   both of those earlier versions read as floating in empty space. */
 #preloader {
   position: fixed;
   inset: 0;
@@ -198,7 +203,6 @@ body {
   background: var(--color-void);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding: clamp(1.2rem, 4vw, 3rem);
 }
 .pre__brand {
@@ -208,13 +212,28 @@ body {
   color: var(--color-dim);
   text-transform: uppercase;
 }
+@media (max-width: 767px) {
+  /* full tracking wraps this to two ragged lines on a phone */
+  .pre__brand {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* greeting + bar move as one block */
+.pre__mid {
+  margin-top: 20vh;
+}
 .pre__greeting {
   font-family: var(--font-grotesk);
-  font-size: clamp(2.9rem, 9vw, 5.4rem);
+  font-size: clamp(3.4rem, 14vw, 7rem);
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
   color: var(--color-bone);
-  min-height: 2em;
+  /* Devanagari/CJK run taller than Latin — reserve the line so the bar
+     underneath does not hop as the language cycles */
+  min-height: 1.3em;
 }
 .pre__greeting::before {
   content: '• Hello';
@@ -227,59 +246,37 @@ body {
   60% { content: '• Guten Tag'; }
   80% { content: '• こんにちは'; }
 }
-.pre__pct {
-  font-family: var(--font-display);
-  font-size: clamp(6rem, 22vw, 18rem);
-  line-height: 0.8;
-  color: var(--color-bone);
-  align-self: flex-end;
-  font-variant-numeric: tabular-nums;
-}
-.pre__pct i {
-  font-style: normal;
-  font-size: 0.25em;
-  color: var(--color-neon);
-}
+
+/* the load bar — previously a 2px hairline pinned to the very top edge of
+   the viewport, now a real track sitting under the greeting */
 .pre__bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 2px;
-  width: 100%;
-  background: #17171d;
+  margin-top: clamp(1.1rem, 3vw, 2rem);
+  height: 8px;
+  width: min(100%, 44rem);
+  border-radius: 999px;
+  background: #1d1e26;
+  overflow: hidden;
 }
 .pre__fill {
   height: 100%;
   width: 0%;
-  background: var(--color-neon);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-violet), var(--color-neon));
 }
 
-@media (max-width: 767px) {
-  /* the greeting and the counter belong in the UPPER half, centred: bottom
-     anchoring them left the screen empty up top and pushed the counter off
-     the bottom edge on shorter viewports */
-  #preloader {
-    justify-content: flex-start;
-  }
-  .pre__top {
-    gap: 1rem;
-  }
-  .pre__brand {
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-  }
-  .pre__greeting {
-    margin-top: 13vh;
-    min-height: 1.25em;
-    font-size: clamp(3.4rem, 13vw, 5.4rem);
-    text-align: center;
-  }
-  .pre__pct {
-    align-self: center;
-    margin-top: 2vh;
-    margin-bottom: auto; /* soak up the slack BELOW the pair */
-    font-size: 32vw;
-  }
+.pre__pct {
+  margin-top: clamp(4rem, 16vh, 10rem);
+  margin-bottom: auto; /* slack sits BELOW, so it never hugs the floor */
+  align-self: flex-end;
+  font-family: var(--font-display);
+  font-size: clamp(5.5rem, 27vw, 17rem);
+  line-height: 0.8;
+  font-variant-numeric: tabular-nums;
+  /* .stroke-type supplies the outline; widen it for type this large */
+  -webkit-text-stroke-width: clamp(2px, 0.28vw, 4px);
+}
+.pre__pct i {
+  font-style: normal;
 }
 
 /* ---------- shared text machinery ---------- */

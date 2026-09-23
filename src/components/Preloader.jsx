@@ -93,15 +93,21 @@ export default function Preloader() {
 
   return (
     <div id="preloader" ref={root}>
-      <div className="pre__bar">
-        <div className="pre__fill" ref={fill} />
-      </div>
       <div className="pre__top flex items-start justify-between">
         <span className="pre__brand">CodingValue© — Kartick Sharma</span>
         <span className="pre__brand">EST. IST / INDIA</span>
       </div>
-      <div className="pre__greeting" aria-hidden="true" />
-      <div className="pre__pct" ref={pct}>
+
+      {/* greeting sits directly above its own progress track */}
+      <div className="pre__mid">
+        <div className="pre__greeting" aria-hidden="true" />
+        <div className="pre__bar">
+          <div className="pre__fill" ref={fill} />
+        </div>
+      </div>
+
+      {/* outlined numeral — same .stroke-type the footer headline uses */}
+      <div className="pre__pct stroke-type" ref={pct}>
         0<i>%</i>
       </div>
     </div>
