@@ -1,0 +1,1038 @@
+/* ============================================================
+   CODINGVALUE © KARTICK SHARMA — global stylesheet
+   Tailwind v4 supplies layout utilities; everything with a
+   "signature look" (cursor, holo panels, impact type, masks)
+   lives here as bespoke CSS.
+   ============================================================ */
+@import 'tailwindcss';
+
+@theme {
+  --color-void: #030304;
+  --color-ink: #0a0a10;
+  --color-panel: #0c0d14;
+  --color-bone: #ececf1;
+  /* secondary text — bright enough to survive the WebGL glow behind it
+     (#8a8a97 and #a6a6b4 both washed out at small letter-spaced sizes) */
+  --color-dim: #b8b8c6;
+  --color-neon: #00e5ff;
+  --color-violet: #8b5cf6;
+  --color-magenta: #ff2e63;
+  --color-mint: #25ffb0;
+  --color-gold: #ffd84f;
+
+  --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-grotesk: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ---------- design tokens: elevation, edges, motion ----------
+   A single elevation scale so every surface reads on the same
+   lighting model — a tight contact shadow stacked under a soft
+   ambient one, plus a 1px top highlight so panels catch the light
+   from above the way real glass does. */
+:root {
+  --elev-1:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.32);
+  --elev-2:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 10px 24px rgba(0, 0, 0, 0.42);
+  --elev-3:
+    0 4px 10px rgba(0, 0, 0, 0.44),
+    0 20px 48px rgba(0, 0, 0, 0.5);
+  --elev-4:
+    0 8px 20px rgba(0, 0, 0, 0.5),
+    0 36px 84px rgba(0, 0, 0, 0.62);
+
+  /* hairline highlight on the top edge + a whisper of inner floor */
+  --edge-light:
+    inset 0 1px 0 color-mix(in srgb, var(--color-bone) 9%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, #000 40%, transparent);
+
+  /* refined surface + border pair, one notch above the flat #1d1e28 */
+  --hairline: color-mix(in srgb, var(--color-bone) 12%, transparent);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* shared keyboard-focus ring — premium and accessible in one place */
+.hero-btn:focus-visible,
+.btn-pill:focus-visible,
+.social-pill:focus-visible,
+.icon-btn:focus-visible,
+.nav-link:focus-visible,
+.proj-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-neon) 70%, transparent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- base ---------- */
+html {
+  background: var(--color-void);
+  scrollbar-width: thin;
+  scrollbar-color: #26262e transparent;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+body {
+  /* transparent — html paints the void; an opaque body background would
+     sit ON TOP of the fixed z-index:-1 WebGL canvas and hide it */
+  background: transparent;
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+}
+::selection {
+  background: var(--color-neon);
+  color: #000;
+}
+@media (pointer: fine) {
+  body,
+  a,
+  button,
+  [data-cursor] {
+    cursor: none;
+  }
+}
+
+/* ---------- fixed overlays ---------- */
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+#noise {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.9s steps(4) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 3%); }
+  50% { transform: translate(3%, -2%); }
+  75% { transform: translate(-3%, -3%); }
+  100% { transform: translate(2%, 2%); }
+}
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ---------- custom cursor ---------- */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  border-radius: 999px;
+  translate: -50% -50%;
+  /* parked at 0,0 until the first pointermove — stay invisible until then */
+  opacity: 0;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-neon);
+  box-shadow: 0 0 12px var(--color-neon);
+}
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--color-neon) 45%, transparent);
+  transition: width 0.25s, height 0.25s, border-color 0.25s, background 0.25s;
+  display: grid;
+  place-items: center;
+}
+.cursor-ring::after {
+  content: attr(data-label);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--color-neon);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cursor-ring.is-hover {
+  width: 64px;
+  height: 64px;
+  border-color: var(--color-neon);
+  background: color-mix(in srgb, var(--color-neon) 8%, transparent);
+}
+.cursor-ring.is-hover::after {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* ---------- preloader ---------- */
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--color-void);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.2rem, 4vw, 3rem);
+}
+.pre__brand {
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 0.95vw, 1.05rem);
+  letter-spacing: 0.3em;
+  color: var(--color-dim);
+  text-transform: uppercase;
+}
+.pre__greeting {
+  font-family: var(--font-grotesk);
+  font-size: clamp(2.9rem, 9vw, 5.4rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-bone);
+  min-height: 2em;
+}
+.pre__greeting::before {
+  content: '• Hello';
+  animation: cycle 2.4s steps(1) infinite;
+}
+@keyframes cycle {
+  0% { content: '• Hello'; }
+  20% { content: '• नमस्ते'; }
+  40% { content: '• Bonjour'; }
+  60% { content: '• Guten Tag'; }
+  80% { content: '• こんにちは'; }
+}
+.pre__pct {
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 22vw, 18rem);
+  line-height: 0.8;
+  color: var(--color-bone);
+  align-self: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+.pre__pct i {
+  font-style: normal;
+  font-size: 0.25em;
+  color: var(--color-neon);
+}
+.pre__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 100%;
+  background: #17171d;
+}
+.pre__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-neon);
+}
+
+@media (max-width: 767px) {
+  /* the greeting and the counter belong in the UPPER half, centred: bottom
+     anchoring them left the screen empty up top and pushed the counter off
+     the bottom edge on shorter viewports */
+  #preloader {
+    justify-content: flex-start;
+  }
+  .pre__top {
+    gap: 1rem;
+  }
+  .pre__brand {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+  .pre__greeting {
+    margin-top: 13vh;
+    min-height: 1.25em;
+    font-size: clamp(3.4rem, 13vw, 5.4rem);
+    text-align: center;
+  }
+  .pre__pct {
+    align-self: center;
+    margin-top: 2vh;
+    margin-bottom: auto; /* soak up the slack BELOW the pair */
+    font-size: 32vw;
+  }
+}
+
+/* ---------- shared text machinery ---------- */
+.char-mask,
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.char,
+.word {
+  display: inline-block;
+  will-change: transform;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-neon);
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  text-shadow: 0 1px 10px rgba(3, 3, 4, 0.95), 0 0 20px rgba(3, 3, 4, 0.8);
+}
+.eyebrow::before {
+  content: '';
+  width: 2.4em;
+  height: 1px;
+  background: currentColor;
+}
+
+/* impact section headings (anime title-card slam target) */
+.impact {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(3.6rem, 11vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  display: inline-block;
+}
+.impact-slash {
+  position: absolute;
+  left: 0;
+  bottom: -0.08em;
+  width: 100%;
+  height: 2px;
+  background: var(--color-neon);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* hollow display type — a whisper of fill + a dark halo so the outline
+   survives sitting directly on the brightest strings of the net */
+.stroke-type {
+  color: color-mix(in srgb, var(--color-bone) 8%, transparent);
+  -webkit-text-stroke: 2px var(--color-bone);
+  text-shadow: 0 0 18px rgba(3, 3, 4, 0.9), 0 3px 6px rgba(3, 3, 4, 0.8);
+}
+
+/* ---------- hero ---------- */
+.hud {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+  /* soft dark halo lifts the small type off the glowing net behind it */
+  text-shadow: 0 1px 10px rgba(3, 3, 4, 0.95), 0 0 22px rgba(3, 3, 4, 0.85);
+}
+.loc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-neon);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-neon) 60%, transparent);
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-neon) 55%, transparent); }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* magnetic pill button */
+.btn-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 1em 1.9em;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-bone) 22%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-bone) 3%, transparent);
+  box-shadow: var(--elev-1), var(--edge-light);
+  transition: border-color 0.35s var(--ease-out), transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
+}
+.btn-pill .btn-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-neon);
+  transform: translateY(101%);
+  transition: transform 0.5s var(--ease-io);
+}
+.btn-pill > * {
+  position: relative;
+  z-index: 1;
+  transition: color 0.35s var(--ease-out);
+}
+.btn-pill:hover {
+  border-color: color-mix(in srgb, var(--color-neon) 45%, transparent);
+  box-shadow: var(--elev-2), 0 0 24px color-mix(in srgb, var(--color-neon) 18%, transparent);
+}
+.btn-pill:hover .btn-fill {
+  transform: translateY(0);
+}
+.btn-pill:hover > * {
+  color: #000;
+}
+.btn-pill:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* logo lockup — boxed K with an accent slash */
+.logo-mark {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.1em;
+  width: 34px;
+  height: 34px;
+  padding-top: 0.28em;
+  border: 1px solid #26262e;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-panel) 80%, transparent);
+  font-family: var(--font-grotesk);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--color-bone);
+}
+.logo-mark i {
+  font-style: normal;
+  color: var(--color-neon);
+}
+
+/* numbered nav links */
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  transition: color 0.3s;
+}
+.nav-link span {
+  color: var(--color-dim);
+  letter-spacing: 0.18em;
+}
+.nav-link {
+  transition: color 0.3s var(--ease-out);
+}
+.nav-link:hover {
+  color: var(--color-neon);
+}
+
+/* readability scrim behind the identity block — soft radial pool of
+   void anchored left, so the WebGL plates dim under the type without
+   any hard edge (and without touching the scene itself) */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 58% 78% at 16% 50%,
+    rgba(3, 3, 4, 0.88),
+    rgba(3, 3, 4, 0.5) 52%,
+    transparent 74%
+  );
+}
+@media (max-width: 1279px) {
+  .hero-scrim {
+    background: radial-gradient(
+      ellipse 90% 80% at 40% 45%,
+      rgba(3, 3, 4, 0.85),
+      rgba(3, 3, 4, 0.45) 55%,
+      transparent 78%
+    );
+  }
+}
+
+/* mobile: the Q×K×V row rides high above the copy, so the identity block
+   drops toward the bottom of the band — pinned a set distance above the
+   HUD row rather than centred, which left a dead gap underneath */
+@media (max-width: 767px) {
+  .hero-band {
+    align-items: flex-end;
+    padding-bottom: 17svh;
+  }
+}
+
+/* identity block — big tracked-out grotesk, no gradient tricks */
+.hero-name {
+  font-family: var(--font-grotesk);
+  font-weight: 300;
+  font-size: clamp(3.2rem, 7.2vw, 6.6rem);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  white-space: nowrap;
+}
+/* tech-stack row under the name — cyan icon + small mono label */
+.hero-stack-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.hero-stack-item .stack-icon {
+  color: var(--color-neon);
+}
+
+/* hero CTAs — squared HUD buttons; primary carries a violet charge */
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+  padding: 1em 1.7em;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--color-bone) 22%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  background: color-mix(in srgb, var(--color-bone) 3%, transparent);
+  box-shadow: var(--elev-1), var(--edge-light);
+  transition: border-color 0.32s var(--ease-out), background 0.32s var(--ease-out),
+    box-shadow 0.32s var(--ease-out), transform 0.32s var(--ease-out);
+}
+.hero-btn:hover {
+  border-color: color-mix(in srgb, var(--color-bone) 55%, transparent);
+  background: color-mix(in srgb, var(--color-bone) 8%, transparent);
+  box-shadow: var(--elev-2), var(--edge-light);
+}
+.hero-btn:active {
+  transform: translateY(1px);
+}
+.hero-btn--primary {
+  border-color: color-mix(in srgb, var(--color-neon) 60%, transparent);
+  box-shadow: var(--elev-1), var(--edge-light),
+    0 0 24px color-mix(in srgb, var(--color-neon) 20%, transparent);
+}
+.hero-btn--primary:hover {
+  border-color: var(--color-neon);
+  background: color-mix(in srgb, var(--color-neon) 12%, transparent);
+  box-shadow: var(--elev-2), var(--edge-light),
+    0 0 40px color-mix(in srgb, var(--color-neon) 36%, transparent);
+}
+
+.stack-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, currentColor 55%, transparent));
+}
+.stack-icon svg {
+  width: 100%;
+  height: 100%;
+}
+/* round social buttons in the HUD row */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #26262e;
+  border-radius: 999px;
+  color: var(--color-dim);
+  background: color-mix(in srgb, var(--color-bone) 3%, transparent);
+  box-shadow: var(--elev-1), var(--edge-light);
+  transition: color 0.3s var(--ease-out), border-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+}
+.icon-btn svg {
+  width: 15px;
+  height: 15px;
+}
+.icon-btn:hover {
+  color: var(--color-neon);
+  border-color: color-mix(in srgb, var(--color-neon) 55%, transparent);
+  box-shadow: var(--elev-2), 0 0 18px color-mix(in srgb, var(--color-neon) 28%, transparent);
+}
+.icon-btn:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+.scroll-arrow {
+  display: inline-block;
+  animation: scroll-bob 1.6s ease-in-out infinite;
+}
+@keyframes scroll-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* ---------- quotes ---------- */
+.quote-word {
+  display: inline-block;
+  margin-right: 0.28em;
+  will-change: transform, opacity;
+}
+.quote-text {
+  font-family: var(--font-grotesk);
+  font-weight: 500;
+  font-size: clamp(1.8rem, 5vw, 4.4rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: #f5f5fa;
+}
+.quote-mark {
+  color: color-mix(in srgb, var(--color-bone) 38%, transparent);
+}
+/* highlighted words resolve in the accent colour — nothing louder */
+.quote-accent {
+  color: var(--color-neon);
+}
+.quote-by {
+  max-width: 30rem;
+  border-top: 1px solid rgba(236, 236, 241, 0.09);
+  padding-top: 1.2em;
+}
+.quote-by-name {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+}
+.quote-by-role {
+  display: block;
+  margin-top: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+/* the scientist's surname ghosts across the back of the section */
+.quote-ghost {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  translate: 0 -50%;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-size: clamp(7rem, 21vw, 21rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-bone) 14%, transparent);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* archival specimen card the portrait is mounted on — the photo itself
+   stays a clean black-and-white print; the card does the framing */
+.quote-card {
+  position: relative;
+  padding: 10px 10px 0;
+  background: color-mix(in srgb, var(--color-panel) 94%, transparent);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--elev-4), var(--edge-light);
+  will-change: transform;
+}
+.quote-photo {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5; /* reserved box — no layout shift on lazy load */
+}
+.quote-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+}
+.quote-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85em 0.2em;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.quote-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-neon);
+  box-shadow: 0 0 8px var(--color-neon);
+  animation: rec-blink 1.6s steps(2, jump-none) infinite;
+}
+@keyframes rec-blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+
+/* ---------- education ---------- */
+.edu-card {
+  background: color-mix(in srgb, var(--color-panel) 82%, transparent);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--elev-2), var(--edge-light);
+}
+.edu-photo {
+  overflow: hidden;
+}
+.edu-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+/* the stage shot is a tall portrait — anchor the landscape card's crop
+   near the top of the image so it keeps the face, not the podium */
+.edu-photo--stage img {
+  object-position: 50% 10%;
+}
+
+/* ---------- holographic project panels ---------- */
+.holo {
+  /* flat HUD panel — same language as the hero's matrix/softmax plates:
+     thin accent border, mono labels, no gradient wash, no sheen */
+  position: relative;
+  background: color-mix(in srgb, var(--color-panel) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-neon) 22%, #1a1b26);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--elev-3), var(--edge-light);
+  transform-style: preserve-3d;
+}
+.holo::before {
+  /* scanlines */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--color-neon) 3%, transparent) 3px 4px
+  );
+  z-index: 2;
+}
+.holo-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--color-neon);
+  border-style: solid;
+  border-width: 0;
+  z-index: 3;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-neon) 70%, transparent));
+}
+.holo-corner.tl { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.holo-corner.tr { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+.holo-corner.bl { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
+.holo-corner.br { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+
+.proj-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.proj-idx {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: var(--color-neon);
+}
+.tag-chip {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.45em 0.9em;
+  border: 1px solid color-mix(in srgb, var(--color-neon) 30%, transparent);
+  color: color-mix(in srgb, var(--color-neon) 85%, white);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-neon) 6%, transparent);
+}
+.proj-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-neon) 45%, transparent);
+  padding-bottom: 0.35em;
+  transition: color 0.3s, border-color 0.3s;
+}
+.proj-link:hover {
+  color: var(--color-neon);
+  border-color: var(--color-neon);
+}
+/* compact header that holds position while the project reel is pinned */
+.proj-pin-head {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.proj-pin-head.is-on {
+  opacity: 1;
+}
+
+.proj-progress {
+  position: absolute;
+  bottom: clamp(1rem, 3vh, 2rem);
+  left: 50%;
+  translate: -50%;
+  width: min(320px, 40vw);
+  height: 1px;
+  background: #1d1e28;
+  z-index: 5;
+}
+.proj-progress i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--color-neon);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+/* ---------- achievements ---------- */
+.ach-card {
+  position: relative;
+  border: 1px solid var(--hairline);
+  background: var(--color-panel);
+  overflow: hidden;
+  box-shadow: var(--elev-2);
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+.ach-card:hover {
+  border-color: color-mix(in srgb, var(--color-neon) 55%, transparent);
+  box-shadow: var(--elev-3), 0 0 26px color-mix(in srgb, var(--color-neon) 14%, transparent);
+}
+.ach-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ach-card .ach-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  padding: 0.9em 1.1em;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--color-bone);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+}
+
+/* pinned certificate deck */
+.stack-stage {
+  perspective: 1400px;
+}
+.stack-card {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  box-shadow: var(--elev-4);
+}
+.stack-card img {
+  pointer-events: none;
+}
+
+/* ---------- lightbox ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(3, 3, 4, 0.92);
+  backdrop-filter: blur(14px);
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+.lightbox img {
+  max-width: min(1100px, 92vw);
+  max-height: 86vh;
+  border: 1px solid #26262e;
+  box-shadow: 0 0 80px rgba(0, 229, 255, 0.12);
+}
+.lightbox button {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--color-bone);
+}
+
+/* ---------- footer ---------- */
+/* the dive shot puts the brightest strings directly behind the CTA —
+   pool some void behind it, same overlay trick as .hero-scrim */
+.footer-cta-wrap {
+  position: relative;
+}
+.footer-cta-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -18% -12% -14% -14%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 68% 82% at 32% 46%,
+    rgba(3, 3, 4, 0.82),
+    rgba(3, 3, 4, 0.42) 55%,
+    transparent 78%
+  );
+}
+.footer-cta {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 12vw, 12rem);
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+/* social pills — same rising-fill treatment as .btn-pill */
+.social-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.9em 1.5em;
+  border-radius: 999px;
+  border: 1px solid #26262e;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-bone) 3%, transparent);
+  box-shadow: var(--elev-1), var(--edge-light);
+  transition: border-color 0.35s var(--ease-out), transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
+}
+.social-pill .btn-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-neon);
+  transform: translateY(101%);
+  transition: transform 0.5s var(--ease-io);
+}
+.social-pill > * {
+  position: relative;
+  z-index: 1;
+  transition: color 0.35s var(--ease-out);
+}
+.social-pill:hover {
+  border-color: var(--color-neon);
+  box-shadow: var(--elev-2), 0 0 22px color-mix(in srgb, var(--color-neon) 18%, transparent);
+}
+.social-pill:hover .btn-fill {
+  transform: translateY(0);
+}
+.social-pill:hover > * {
+  color: #000;
+}
+.social-pill:active {
+  transform: translateY(1px) scale(0.99);
+}
+/* footer mail pill — same shell as .social-pill, but it carries an actual
+   email address, not a short label: uppercase + wide tracking would both
+   mangle it (SHARMAKARTICK512@GMAIL.COM) and blow the pill out sideways,
+   so it gets its own casing/spacing and wraps to two lines on narrow
+   viewports instead of overflowing. */
+.footer-mail {
+  display: inline-flex;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+}
+.footer-mail > span:last-child {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+  .footer-mail {
+    white-space: normal;
+    text-align: left;
+  }
+}
+
+.social-icon {
+  display: inline-flex;
+}
+.social-pill svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- motion safety ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #noise {
+    animation: none;
+  }
+  .loc-dot,
+  .scroll-arrow,
+  .quote-card-dot {
+    animation: none;
+  }
+  .proj-pin-head {
+    opacity: 1;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}

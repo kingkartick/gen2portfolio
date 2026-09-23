@@ -1,0 +1,69 @@
+================================================================================
+                           KARTICK SHARMA
+                    Data Science & Cloud Developer
+================================================================================
+
+  Email   : sharmakartick512@gmail.com
+  Location: India (IST)
+  Brand   : CodingValue by Kartick
+
+--------------------------------------------------------------------------------
+EDUCATION
+--------------------------------------------------------------------------------
+
+  Bachelor of Science — Data Sciences and Applications          [In Progress]
+  Indian Institute of Technology (IIT) Madras
+  BS in Data Science & Applications
+
+--------------------------------------------------------------------------------
+INTERNSHIP PROJECTS
+--------------------------------------------------------------------------------
+
+  01 | GalaxEye
+  -------------
+  Geospatial analytics platform built on Leaflet with NDVI vegetation-index
+  layers, turning satellite raster data into actionable insight.
+
+  Skills : Leaflet · Geospatial · NDVI · Data Visualization
+  Cert   : https://drive.google.com/file/d/1hadL8-2L5wWjJvB909LRRZJzbNOuMSLt/view?usp=drive_link
+
+  02 | Tynor
+  ----------
+  Manufacturing defect detection system using YOLO and TensorFlow Lite —
+  real-time bounding-box inference on production components at the edge.
+
+  Skills : YOLO · TensorFlow Lite · Computer Vision · Edge ML
+  Cert   : https://drive.google.com/file/d/1daRqA4CWhIySuj_OHAOutbU0PZbsMQs6/view?usp=drive_link
+
+  03 | SolutionWise
+  -----------------
+  Service-marketplace platform with an Angular SPA frontend backed by a
+  Strapi headless CMS and a clean API-driven data architecture.
+
+  Skills : Angular · Strapi · REST API · Cloud
+  Cert   : https://drive.google.com/file/d/1hadL8-2L5wWjJvB909LRRZJzbNOuMSLt/view?usp=drive_link
+
+--------------------------------------------------------------------------------
+TECHNICAL SKILLS
+--------------------------------------------------------------------------------
+
+  Machine Learning   : YOLO, TensorFlow Lite, Computer Vision, NDVI / Remote Sensing
+  Data & Geospatial  : Geospatial Analysis, Leaflet, Data Visualization
+  Frontend           : React, Angular, Vite, GSAP, Three.js
+  Backend / CMS      : Strapi, REST API
+  Cloud & DevOps     : Cloud Deployment, Infrastructure-aware Web Systems
+
+--------------------------------------------------------------------------------
+ACHIEVEMENTS
+--------------------------------------------------------------------------------
+
+  • Multiple certificates of recognition (available on portfolio)
+  • Presented / performed on stage at IIT Madras
+
+--------------------------------------------------------------------------------
+CONTACT
+--------------------------------------------------------------------------------
+
+  For inquiries: sharmakartick512@gmail.com
+
+================================================================================

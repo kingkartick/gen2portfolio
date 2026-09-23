@@ -1,0 +1,21 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# leftover unreferenced duplicate of public/assets (24MB, nothing imports
+# from repo-root /assets — only /public/assets is served by Vite)
+/assets
+
+# Claude Code local tool config — not part of the site
+.claude/
+
+# unreferenced duplicate of public/assets/Kartick-Sharma-Resume.txt
+/resume.txt
