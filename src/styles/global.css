@@ -220,17 +220,26 @@ body {
   }
 }
 
-/* greeting + bar move as one block */
+/* greeting + bar move as one block. fit-content makes the block shrink to
+   the greeting's own width, so the bar underneath measures exactly the
+   word it belongs to instead of running the full page width (it tracks
+   the width as the language cycles, which reads as the bar sizing itself
+   to each greeting). */
 .pre__mid {
   margin-top: 20vh;
+  width: fit-content;
+  max-width: 100%;
 }
 .pre__greeting {
   font-family: var(--font-grotesk);
-  font-size: clamp(3.4rem, 14vw, 7rem);
+  /* min is sized so the widest greeting (こんにちは) still fits one
+     nowrap line on a 320px screen; 14vw takes over from ~331px up */
+  font-size: clamp(2.9rem, 14vw, 7rem);
   font-weight: 500;
   letter-spacing: -0.015em;
   line-height: 1.15;
   color: var(--color-bone);
+  white-space: nowrap; /* one line, so the bar can track its width */
   /* Devanagari/CJK run taller than Latin — reserve the line so the bar
      underneath does not hop as the language cycles */
   min-height: 1.3em;
@@ -252,7 +261,7 @@ body {
 .pre__bar {
   margin-top: clamp(1.1rem, 3vw, 2rem);
   height: 8px;
-  width: min(100%, 44rem);
+  width: 100%; /* = the greeting's width, via .pre__mid's fit-content */
   border-radius: 999px;
   background: #1d1e26;
   overflow: hidden;
